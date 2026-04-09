@@ -2,6 +2,10 @@ name: Claude Code
 
 on:
   pull_request:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened, edited]
 
 permissions:
   id-token: write
