@@ -1,12 +1,12 @@
 name: Claude Code
 
 on:
-    pull_request:
-    types: [opened, synchronize]
+  pull_request:
 
 permissions:
   id-token: write
   contents: read
+  pull-requests: write
 
 jobs:
   claude-review:
