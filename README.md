@@ -1,7 +1,7 @@
 # UIGen
 
 AI-powered React component generator with live preview.
-test claude workflow
+test claude workflow 2
 
 ## Prerequisites
 
