@@ -2,6 +2,10 @@ name: Claude Code
 
 on:
   pull_request:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened, edited]
 
 permissions:
   id-token: write
@@ -15,7 +19,55 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 🔧 Setup Node
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 📦 Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      # 🚀 Project setup + levantar servidor
+      - name: Project Setup
+        run: |
+          npm run setup
+          npm run dev &
+
+      # ⏳ Esperar a que el servidor arranque
+      - name: Wait for server
+        run: sleep 10
+
+      # 🤖 Claude
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@main
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+          custom_instructions: |
+            The project is already set up with all dependencies installed.
+            The server is running at http://localhost:3000.
+            If needed, you can query the database with sqlite3.
+            You can use Playwright tools to interact with the app.
+
+          mcp_config: |
+            {
+              "mcpServers": {
+                "playwright": {
+                  "command": "npx",
+                  "args": [
+                    "@playwright/mcp@latest",
+                    "--allowed-origins",
+                    "localhost:3000"
+                  ]
+                }
+              }
+            }
+
+          allowed_tools: >
+            Bash(npm:*),
+            Bash(sqlite3:*),
+            mcp__playwright__browser_snapshot,
+            mcp__playwright__browser_click,
+            mcp__playwright__browser_navigate
